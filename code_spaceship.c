@@ -124,7 +124,7 @@ void main_game(SDL_Renderer *renderer)
     object_list["background"].speed = 2;
     object_list["background"].state = 0;	
     object_list["background"].state_delay = 0;	
-  	object_list["background"].assign_image(renderer, "spacebgd2/background_planets_raw.bmp");
+  	object_list["background"].assign_image(renderer, "images/background_planets_raw.bmp");
   
     object_list["spaceship"].permanent = true;
     object_list["spaceship"].xyw[0] = 720 - spaceship_width / 2;
@@ -132,14 +132,14 @@ void main_game(SDL_Renderer *renderer)
     object_list["spaceship"].xyw[2] = spaceship_width;
     object_list["spaceship"].xyw[3] = spaceship_height;
     object_list["spaceship"].speed = 8;
-    object_list["spaceship"].assign_image(renderer, "spaceship_iason.bmp");
+    object_list["spaceship"].assign_image(renderer, "images/spaceship_iason.bmp");
   
     object_list["score"].permanent = true;
     object_list["score"].xyw[0] = 1354;
     object_list["score"].xyw[1] = 10;
     object_list["score"].xyw[2] = 76;
     object_list["score"].xyw[3] = 20;
-    object_list["score"].assign_image(renderer, "score.bmp");
+    object_list["score"].assign_image(renderer, "images/score.bmp");
   
    
     while (!quit)
@@ -157,7 +157,7 @@ void main_game(SDL_Renderer *renderer)
           position = 1418 - 15*( my_str.length()-1 - i );
           str_counter = std::to_string(position);
           str_counter =  "counter" + str_counter;
-          my_file = my_digit + ".bmp";
+          my_file = "images/" + my_digit + ".bmp";
 	      object_list[str_counter.c_str()].xyw[0] = position;
 	      object_list[str_counter.c_str()].permanent = false;
 	      object_list[str_counter.c_str()].display = true;
@@ -218,7 +218,7 @@ void main_game(SDL_Renderer *renderer)
           object_list[str_missile.c_str()].xyw[0] = object_list["spaceship"].xyw[0] + object_list["spaceship"].xyw[2]/2 - object_list[str_missile.c_str()].xyw[2]/2 - 1;
           object_list[str_missile.c_str()].xyw[1] = object_list["spaceship"].xyw[1];
           object_list[str_missile.c_str()].speed  = 15;
-          object_list[str_missile.c_str()].assign_image(renderer, "missile.bmp");
+          object_list[str_missile.c_str()].assign_image(renderer, "images/missile.bmp");
           n_missiles++;
         }
 	  }
@@ -240,7 +240,7 @@ void main_game(SDL_Renderer *renderer)
         object_list[str_enemy.c_str()].explosion_delay = 0;
         if (n_enemy < 100)
         {
-          object_list[str_enemy.c_str()].assign_image(renderer, "enemy.bmp");
+          object_list[str_enemy.c_str()].assign_image(renderer, "images/enemy.bmp");
         }
         n_enemy++; 
       }
@@ -264,7 +264,7 @@ void main_game(SDL_Renderer *renderer)
         object_list[str_enemy_diagonal.c_str()].direction = axis;
         if (n_enemy_diagonal < 100)
         {
-          object_list[str_enemy_diagonal.c_str()].assign_image(renderer, "enemy_diagonal.bmp");
+          object_list[str_enemy_diagonal.c_str()].assign_image(renderer, "images/enemy_diagonal.bmp");
         }
         n_enemy_diagonal++; 
       }
@@ -367,7 +367,7 @@ void main_game(SDL_Renderer *renderer)
             if (object_list[enemies.first].explosion_delay == 3)
             {
               str_explosion = std::to_string(object_list[enemies.first].explosion);
-              str_explosion = "explosion" + str_explosion + ".bmp";
+              str_explosion = "images/explosion" + str_explosion + ".bmp";
               object_list[enemies.first].assign_image(renderer, str_explosion.c_str());
               object_list[enemies.first].explosion++;
               object_list[enemies.first].explosion_delay = 0;
@@ -403,7 +403,7 @@ void main_game(SDL_Renderer *renderer)
 //      object_list["background"].xyw[1] = 0;
 //      object_list["background"].xyw[2] = background_width_2;
 //      object_list["background"].xyw[3] = background_height_2;
-//      object_list["background"].assign_image(renderer, "space_gameover.bmp");
+//      object_list["background"].assign_image(renderer, "images/space_gameover.bmp");
 //      
 //      object_list["play_again"].xyw[0] = background_width_2/2 - play_again_width + 100;
 //      object_list["play_again"].xyw[1] = 570;
@@ -413,11 +413,11 @@ void main_game(SDL_Renderer *renderer)
 //      
 //      if (object_list["play_again"].selected == true)
 //      {
-//        object_list["play_again"].assign_image(renderer, "play_again_select.bmp");
+//        object_list["play_again"].assign_image(renderer, "images/play_again_select.bmp");
 //      }
 //      else 
 //      {
-//      	object_list["play_again"].assign_image(renderer, "play_again.bmp");
+//      	object_list["play_again"].assign_image(renderer, "images/play_again.bmp");
 //      }
 //            
 //      object_list["home"].xyw[0] = background_width_2/2 + 134;
@@ -428,12 +428,12 @@ void main_game(SDL_Renderer *renderer)
 //      
 //      if (object_list["home"].selected == true)
 //      {
-//        object_list["home"].assign_image(renderer, "home_select.bmp");
+//        object_list["home"].assign_image(renderer, "images/home_select.bmp");
 //        //if (space)   object_list["background"].background_display = 0;
 //      }
 //      else 
 //      {
-//      	object_list["home"].assign_image(renderer, "home.bmp");
+//      	object_list["home"].assign_image(renderer, "images/home.bmp");
 //        //if (space)   object_list["background"].background_display = 2;
 //      }
 //      
@@ -444,7 +444,7 @@ void main_game(SDL_Renderer *renderer)
 //      object_list["score"].xyw[1] = 350;
 //      object_list["score"].xyw[2] = 350;
 //      object_list["score"].xyw[3] = 92;
-//      object_list["score"].assign_image(renderer, "score.bmp");
+//      object_list["score"].assign_image(renderer, "images/score.bmp");
 //      
 //      std::string my_str, my_digit, str_counter, my_file;
 //      my_str = std::to_string(my_score);
@@ -454,7 +454,7 @@ void main_game(SDL_Renderer *renderer)
 //          position = ((720 + ((my_str.length() - 1) * 65 - 10)/2) )- 65*( my_str.length()-1 - i );
 //          str_counter = std::to_string(position);
 //          str_counter =  "counter" + str_counter;
-//          my_file = my_digit + ".bmp";
+//          my_file = "images/" + my_digit + ".bmp";
 //	      object_list[str_counter.c_str()].xyw[0] = position;
 //	      object_list[str_counter.c_str()].permanent = false;
 //	      object_list[str_counter.c_str()].display = true;
