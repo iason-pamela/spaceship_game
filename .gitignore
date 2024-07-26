@@ -2,3 +2,4 @@
 *.bmp
 *.odp
 *.exe
+.DS_Store

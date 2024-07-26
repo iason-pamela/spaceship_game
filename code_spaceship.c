@@ -45,6 +45,16 @@
     public:
      int background_width_1  = 4150;
      int background_height_1 = 7500;
+     int background_width_2  = 1440;
+     int background_height_2 = 850;
+     int play_again_width = 510;
+     int play_again_height = 100;
+     int home_width  = 238;
+     int home_height = 92;
+     long my_score = 0;
+     int mode = 0;
+     int refresh = 20;
+     bool quit = false;
   };
   
   void update_renderer(SDL_Renderer *renderer, std::map<std::string, my_SDL_object> object_list)
@@ -63,17 +73,11 @@
   	  SDL_RenderPresent(renderer);
   }
 
-void main_game(SDL_Renderer *renderer)
+game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
 { 
-  game_parameters GP;
-  int background_width_1  = 0;//4150;
-  int background_height_1 = 0;//7500;
-  int background_width_2  = 1440;
-  int background_height_2 = 850;
-  int play_again_width = 510;
-  int play_again_height = 100;
-  int home_width  = 238;
-  int home_height = 92;
+  //game_parameters GP;
+  int background_width_1  = 0;
+  int background_height_1 = 0;
   int spaceship_width  = 80;
   int spaceship_height = 70;
   int n_missiles = 0, missile_ready = 0;
@@ -82,19 +86,11 @@ void main_game(SDL_Renderer *renderer)
   int enemy_delay = 100;
   int n_enemy_diagonal = 0, enemy_ready_diagonal = 0;
   int enemy_delay_diagonal = 150;
-  long my_score = 0;
   int i;
   int position;
-  int mode = 0; 
   bool up, left, right, down, space;
   const Uint8 *state;
-  int refresh = 20;
-  bool quit = false;
   int axis; 
-
-
-  background_width_1  = GP.background_width_1;
-  background_height_1 = GP.background_height_1;
 
 
 
@@ -107,16 +103,13 @@ void main_game(SDL_Renderer *renderer)
   std::string str_tmp;
   std::string str_explosion;
   std::string str_state; 
- 
-
-  
-  object_list["background"].permanent = true;
-  object_list["background"].display = true;
-  
- 
-  
-  
-	
+  std::string my_str;
+  std::string my_digit;
+  std::string str_counter;
+  std::string my_file;
+   
+    object_list["background"].permanent = true;
+    object_list["background"].display = true;
     object_list["background"].xyw[0] = -1120;
     object_list["background"].xyw[1] = -5867;
     object_list["background"].xyw[2] = GP.background_width_1;
@@ -142,15 +135,14 @@ void main_game(SDL_Renderer *renderer)
     object_list["score"].assign_image(renderer, "images/score.bmp");
   
    
-    while (!quit)
+    while (!GP.quit)
     {
-      SDL_Delay(refresh);
+      SDL_Delay(GP.refresh);
       SDL_PollEvent(&event);
-      if (event.type == SDL_QUIT) {quit = true;}
-    
+      if (event.type == SDL_QUIT) {GP.quit = true;}
+      
 
-      std::string my_str, my_digit, str_counter, my_file;
-      my_str = std::to_string(my_score);
+      my_str = std::to_string(GP.my_score);
       for(i=my_str.length()-1; i >= 0; i--)
       {
           my_digit = my_str.substr(i,1);
@@ -167,7 +159,12 @@ void main_game(SDL_Renderer *renderer)
           object_list[str_counter.c_str()].assign_image(renderer, my_file.c_str());    
       }
     
-    
+      if (GP.my_score > 50)
+      {
+        GP.mode = 1;
+        return GP;
+      }
+      
       //background moving -->
       object_list["background"].state_delay++;
       if (object_list["background"].state_delay == 1)
@@ -189,8 +186,6 @@ void main_game(SDL_Renderer *renderer)
       right = state[SDL_SCANCODE_RIGHT];
       down  = state[SDL_SCANCODE_DOWN];
       space = state[SDL_SCANCODE_SPACE];
-      
-      if (my_score == 100) mode = 1;
       
       if (up)		object_list["spaceship"].xyw[1] = object_list["spaceship"].xyw[1] - object_list["spaceship"].speed;
       if (left)	object_list["spaceship"].xyw[0] = object_list["spaceship"].xyw[0] - object_list["spaceship"].speed;
@@ -296,7 +291,7 @@ void main_game(SDL_Renderer *renderer)
               {
                 object_list[missiles.first].display = false;
                 object_list[enemies.first].explosion = 1;  
-                my_score = my_score + 50;
+                GP.my_score = GP.my_score + 50;
               }
             }
           } // loop on enemy
@@ -313,7 +308,7 @@ void main_game(SDL_Renderer *renderer)
               {
                 object_list[missiles.first].display = false;
                 object_list[enemies_diagonal.first].explosion = 1;  
-                my_score = my_score + 50;
+                GP.my_score = GP.my_score + 50;
               }
             }
           } // loop on enemy diagonal
@@ -377,114 +372,142 @@ void main_game(SDL_Renderer *renderer)
       }
 	  update_renderer(renderer, object_list);
     }
+    
+    return GP;
 }
 
   
   
-//  
-//  if (mode == 1)
-//  {
-//     while (!quit)
-//    {   
-//      SDL_Delay(refresh);
-//      SDL_PollEvent(&event);
-//      if (event.type == SDL_QUIT) {quit = true;}
-//      
-//      state = SDL_GetKeyboardState(NULL);
-//      
-//      left  = state[SDL_SCANCODE_LEFT];
-//      right = state[SDL_SCANCODE_RIGHT];
-//      space = state[SDL_SCANCODE_SPACE];
-//      
-//      if (left)		object_list["play_again"].selected = true, object_list["home"].selected = false;
-//      if (right)	object_list["play_again"].selected = false, object_list["home"].selected = true;
-//          
-//      object_list["background"].xyw[0] = 0;
-//      object_list["background"].xyw[1] = 0;
-//      object_list["background"].xyw[2] = background_width_2;
-//      object_list["background"].xyw[3] = background_height_2;
-//      object_list["background"].assign_image(renderer, "images/space_gameover.bmp");
-//      
-//      object_list["play_again"].xyw[0] = background_width_2/2 - play_again_width + 100;
-//      object_list["play_again"].xyw[1] = 570;
-//      object_list["play_again"].xyw[2] = play_again_width;
-//      object_list["play_again"].xyw[3] = play_again_height;	
-//      object_list["play_again"].display = true;	
-//      
-//      if (object_list["play_again"].selected == true)
-//      {
-//        object_list["play_again"].assign_image(renderer, "images/play_again_select.bmp");
-//      }
-//      else 
-//      {
-//      	object_list["play_again"].assign_image(renderer, "images/play_again.bmp");
-//      }
-//            
-//      object_list["home"].xyw[0] = background_width_2/2 + 134;
-//      object_list["home"].xyw[1] = 570;
-//      object_list["home"].xyw[2] = home_width;
-//      object_list["home"].xyw[3] = home_height;	
-//      object_list["home"].display = true;	
-//      
-//      if (object_list["home"].selected == true)
-//      {
-//        object_list["home"].assign_image(renderer, "images/home_select.bmp");
-//        //if (space)   object_list["background"].background_display = 0;
-//      }
-//      else 
-//      {
-//      	object_list["home"].assign_image(renderer, "images/home.bmp");
-//        //if (space)   object_list["background"].background_display = 2;
-//      }
-//      
-//      if (space)   mode = 0;
-//      
-//      object_list["score"].permanent = true;
-//      object_list["score"].xyw[0] = 545;
-//      object_list["score"].xyw[1] = 350;
-//      object_list["score"].xyw[2] = 350;
-//      object_list["score"].xyw[3] = 92;
-//      object_list["score"].assign_image(renderer, "images/score.bmp");
-//      
-//      std::string my_str, my_digit, str_counter, my_file;
-//      my_str = std::to_string(my_score);
-//      for(i=my_str.length()-1; i >= 0; i--)
-//      {
-//          my_digit = my_str.substr(i,1);
-//          position = ((720 + ((my_str.length() - 1) * 65 - 10)/2) )- 65*( my_str.length()-1 - i );
-//          str_counter = std::to_string(position);
-//          str_counter =  "counter" + str_counter;
-//          my_file = "images/" + my_digit + ".bmp";
-//	      object_list[str_counter.c_str()].xyw[0] = position;
-//	      object_list[str_counter.c_str()].permanent = false;
-//	      object_list[str_counter.c_str()].display = true;
-//          object_list[str_counter.c_str()].xyw[1] = 460;
-//          object_list[str_counter.c_str()].xyw[2] = 55;
-//          object_list[str_counter.c_str()].xyw[3] = 92;
-//          object_list[str_counter.c_str()].assign_image(renderer, my_file.c_str());    
-//      }
-//
-//      
-//      update_renderer(renderer, object_list);
-//      
-//      
-//      
-//    
-//    
-//    
-//    
-//    
-//    }  
-//  }
-//  
+  
+game_parameters game_over(SDL_Renderer *renderer, game_parameters GP)
+{
+    int i;
+    int position;
+    bool up, left, right, down, space;
+    const Uint8 *state;
+  	
+  	my_SDL_object test_object;
+    SDL_Event event;
+    std::map<std::string, my_SDL_object> object_list;
+  	std::string my_str;
+  	std::string my_digit; 
+  	std::string str_counter;
+  	std::string my_file;
+  	
+    while (!GP.quit)
+    {   
+      SDL_Delay(GP.refresh);
+      SDL_PollEvent(&event);
+      if (event.type == SDL_QUIT) {GP.quit = true; return GP;}
+      
+      state = SDL_GetKeyboardState(NULL);
+      
+      left  = state[SDL_SCANCODE_LEFT];
+      right = state[SDL_SCANCODE_RIGHT];
+      space = state[SDL_SCANCODE_SPACE];
+      
+      if (left)		object_list["play_again"].selected = true, object_list["home"].selected = false;
+      if (right)	object_list["play_again"].selected = false, object_list["home"].selected = true;
+          
+          
+      object_list["background"].permanent = true;
+      object_list["background"].display = true;    
+      object_list["background"].xyw[0] = 0;
+      object_list["background"].xyw[1] = 0;
+      object_list["background"].xyw[2] = GP.background_width_2;
+      object_list["background"].xyw[3] = GP.background_height_2;
+      object_list["background"].assign_image(renderer, "images/space_gameover.bmp");
+      
+      object_list["play_again"].xyw[0] = GP.background_width_2/2 - GP.play_again_width + 100;
+      object_list["play_again"].xyw[1] = 570;
+      object_list["play_again"].xyw[2] = GP.play_again_width;
+      object_list["play_again"].xyw[3] = GP.play_again_height;	
+      object_list["play_again"].display = true;	
+      
+      if (object_list["play_again"].selected == true)
+      {
+        object_list["play_again"].assign_image(renderer, "images/play_again_select.bmp");
+        if (space)
+        {
+          GP.mode = 0;
+          GP.my_score = 0;
+          return GP;
+        }
+      }
+      else 
+      {
+      	object_list["play_again"].assign_image(renderer, "images/play_again.bmp");
+      }
+            
+      object_list["home"].xyw[0] = GP.background_width_2/2 + 134;
+      object_list["home"].xyw[1] = 570;
+      object_list["home"].xyw[2] = GP.home_width;
+      object_list["home"].xyw[3] = GP.home_height;	
+      object_list["home"].display = true;	
+      
+      if (object_list["home"].selected == true)
+      {
+        object_list["home"].assign_image(renderer, "images/home_select.bmp");
+        if (space)
+        {
+          GP.mode = 2;
+          GP.my_score = 0;
+          return GP;
+        }
+      }
+      else 
+      {
+      	object_list["home"].assign_image(renderer, "images/home.bmp");
+      }
+      
+      object_list["score"].permanent = true;
+      object_list["score"].xyw[0] = 545;
+      object_list["score"].xyw[1] = 350;
+      object_list["score"].xyw[2] = 350;
+      object_list["score"].xyw[3] = 92;
+      object_list["score"].assign_image(renderer, "images/score.bmp");
+      
+
+      my_str = std::to_string(GP.my_score);
+      for(i=my_str.length()-1; i >= 0; i--)
+      {
+          my_digit = my_str.substr(i,1);
+          position = ((720 + ((my_str.length() - 1) * 65 - 10)/2) )- 65*( my_str.length()-1 - i );
+          str_counter = std::to_string(position);
+          str_counter =  "counter" + str_counter;
+          my_file = "images/" + my_digit + ".bmp";
+	      object_list[str_counter.c_str()].xyw[0] = position;
+	      object_list[str_counter.c_str()].permanent = false;
+	      object_list[str_counter.c_str()].display = true;
+          object_list[str_counter.c_str()].xyw[1] = 460;
+          object_list[str_counter.c_str()].xyw[2] = 55;
+          object_list[str_counter.c_str()].xyw[3] = 92;
+          object_list[str_counter.c_str()].assign_image(renderer, my_file.c_str());    
+      }
+
+      
+      update_renderer(renderer, object_list);  
+    
+    
+    }
+    return GP;
+}
+ 
   
 int main(int argc, char ** argv)
 {
+  game_parameters GP;
+  
   SDL_Init(SDL_INIT_VIDEO);
   SDL_Window * window = SDL_CreateWindow("SDL2 Keyboard/Mouse events",SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1440, 900, 0);
   SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, 0);  
   
-  main_game(renderer);
+  GP.mode = 0;
+  while(!GP.quit)
+  {
+    if (GP.mode == 0) {GP = main_game(renderer, GP);}
+    if (GP.mode == 1) {GP = game_over(renderer, GP);}
+  }
   
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
