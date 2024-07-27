@@ -49,9 +49,12 @@
      int background_height_2 = 850;
      int play_again_width = 510;
      int play_again_height = 100;
+     int play_width = 348;
+     int play_height = 144;
      int home_width  = 238;
      int home_height = 92;
      long my_score = 0;
+     long high_score = 0;
      int mode = 0;
      int refresh = 20;
      bool quit = false;
@@ -430,6 +433,7 @@ game_parameters game_over(SDL_Renderer *renderer, game_parameters GP)
         if (space)
         {
           GP.mode = 0;
+          if (GP.my_score > GP.high_score) GP.high_score = GP.my_score;
           GP.my_score = 0;
           return GP;
         }
@@ -451,6 +455,7 @@ game_parameters game_over(SDL_Renderer *renderer, game_parameters GP)
         if (space)
         {
           GP.mode = 2;
+          if (GP.my_score > GP.high_score) GP.high_score = GP.my_score;
           GP.my_score = 0;
           return GP;
         }
@@ -493,6 +498,96 @@ game_parameters game_over(SDL_Renderer *renderer, game_parameters GP)
     return GP;
 }
  
+ 
+ 
+ 
+game_parameters home_screen(SDL_Renderer *renderer, game_parameters GP)
+{
+    int i;
+    int position;
+    bool up, left, right, down, space;
+    const Uint8 *state;
+  	
+  	
+  	my_SDL_object test_object;
+    SDL_Event event;
+    std::map<std::string, my_SDL_object> object_list;
+  	std::string my_str;
+  	std::string my_digit; 
+  	std::string str_counter;
+  	std::string my_file;
+
+    while (!GP.quit)
+    {   
+      SDL_Delay(GP.refresh);
+      SDL_PollEvent(&event);
+      if (event.type == SDL_QUIT) {GP.quit = true; return GP;}
+      
+      state = SDL_GetKeyboardState(NULL);
+      
+      left  = state[SDL_SCANCODE_LEFT];
+      right = state[SDL_SCANCODE_RIGHT];
+      space = state[SDL_SCANCODE_SPACE];
+      
+      if (left)		object_list["play"].selected = true;
+      if (right)	object_list["play"].selected = true;
+          
+          
+      object_list["background"].permanent = true;
+      object_list["background"].display = true;    
+      object_list["background"].xyw[0] = 0;
+      object_list["background"].xyw[1] = 0;
+      object_list["background"].xyw[2] = GP.background_width_2;
+      object_list["background"].xyw[3] = GP.background_height_2;
+      object_list["background"].assign_image(renderer, "images/home_screen.bmp");
+      
+      object_list["play"].xyw[0] = GP.background_width_2/2 - GP.play_width/2;
+      object_list["play"].xyw[1] = 300;
+      object_list["play"].xyw[2] = GP.play_width;
+      object_list["play"].xyw[3] = GP.play_height;	
+      object_list["play"].display = true;	
+      
+      if (object_list["play"].selected == true)
+      {
+        object_list["play"].assign_image(renderer, "images/play_select.bmp");
+        if (space)
+        {
+          GP.mode = 0;
+          GP.my_score = 0;
+          return GP;
+        }
+      }
+      else 
+      {
+      	object_list["play"].assign_image(renderer, "images/play.bmp");
+      }
+            
+      
+      my_str = std::to_string(GP.high_score);
+      for(i=my_str.length()-1; i >= 0; i--)
+      {
+          my_digit = my_str.substr(i,1);
+          position = ((720 + ((my_str.length() - 1) * 65 - 10)/2) )- 65*( my_str.length()-1 - i );
+          str_counter = std::to_string(position);
+          str_counter =  "counter" + str_counter;
+          my_file = "images/" + my_digit + ".bmp";
+	      object_list[str_counter.c_str()].xyw[0] = position;
+	      object_list[str_counter.c_str()].permanent = false;
+	      object_list[str_counter.c_str()].display = true;
+          object_list[str_counter.c_str()].xyw[1] = 700;
+          object_list[str_counter.c_str()].xyw[2] = 55;
+          object_list[str_counter.c_str()].xyw[3] = 92;
+          object_list[str_counter.c_str()].assign_image(renderer, my_file.c_str());    
+      }
+
+      
+      update_renderer(renderer, object_list);  
+    
+    
+    }
+    return GP;
+}
+
   
 int main(int argc, char ** argv)
 {
@@ -507,6 +602,7 @@ int main(int argc, char ** argv)
   {
     if (GP.mode == 0) {GP = main_game(renderer, GP);}
     if (GP.mode == 1) {GP = game_over(renderer, GP);}
+    if (GP.mode == 2) {GP = home_screen(renderer, GP);}
   }
   
   SDL_DestroyRenderer(renderer);
