@@ -22,6 +22,7 @@
       int n_weapons, weapon_ready, weapon_delay;
       int direction;
       int number_display;
+      bool alive = true;
     void assign_image(SDL_Renderer *renderer, const char* filename)
     {
       image = SDL_LoadBMP(filename);
@@ -75,6 +76,22 @@
   	  SDL_RenderPresent(renderer);
   }
 
+
+  bool valueInRange(int value, int min, int max)
+  { return (value >= min) && (value <= max); }
+
+  bool object_collision(my_SDL_object object1, my_SDL_object object2)
+  {
+    bool xOverlap = valueInRange(object1.xyw[0], object2.xyw[0], object2.xyw[0] + object2.xyw[2]) ||
+                    valueInRange(object2.xyw[0], object1.xyw[0], object1.xyw[0] + object1.xyw[2]);
+
+    bool yOverlap = valueInRange(object1.xyw[1], object2.xyw[1], object2.xyw[1] + object2.xyw[3]) ||
+                    valueInRange(object2.xyw[1], object1.xyw[1], object1.xyw[1] + object1.xyw[3]);
+
+    return xOverlap && yOverlap;
+  }
+
+
 game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
 { 
   //game_parameters GP;
@@ -95,8 +112,8 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
   bool up, left, right, down, space, enter;
   const Uint8 *state;
   int axis; 
+  int hearts = 3;
   
-
 
 
   my_SDL_object test_object;
@@ -115,6 +132,7 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
   std::string my_file;
   std::string str_laser;
   std::string weapon_tmp;
+  std::string str_lives;
    
   object_list["background"].permanent = true;
   object_list["background"].display = true;
@@ -128,13 +146,14 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
   object_list["background"].assign_image(renderer, "images/background_planets_raw.bmp");
   
   object_list["spaceship"].permanent = true;
+  object_list["spaceship"].display = true;
   object_list["spaceship"].xyw[0] = 720 - spaceship_width / 2;
   object_list["spaceship"].xyw[1] = 450 - spaceship_height / 2;
   object_list["spaceship"].xyw[2] = spaceship_width;
   object_list["spaceship"].xyw[3] = spaceship_height;
   object_list["spaceship"].speed = 8;
   object_list["spaceship"].assign_image(renderer, "images/spaceship_iason.bmp");
-  object_list["spaceship"].weapon_delay = 10;
+  object_list["spaceship"].weapon_delay = 20;
   
   object_list["score"].permanent = true;
   object_list["score"].xyw[0] = 1354;
@@ -143,6 +162,15 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
   object_list["score"].xyw[3] = 20;
   object_list["score"].assign_image(renderer, "images/score.bmp");
   
+  object_list["flash"].permanent = false;
+  object_list["flash"].xyw[0] = 0;
+  object_list["flash"].xyw[1] = 0;
+  object_list["flash"].xyw[2] = GP.background_width_2;
+  object_list["flash"].xyw[3] = GP.background_height_2;
+  object_list["flash"].display = false;
+  object_list["flash"].state_delay = 0;
+  object_list["flash"].state = 3;
+  object_list["flash"].assign_image(renderer, "images/heart_flash.bmp");
    
   while (!GP.quit)
   {
@@ -169,19 +197,37 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
       object_list[str_counter.c_str()].xyw[3] = 20;
       object_list[str_counter.c_str()].assign_image(renderer, my_file.c_str());    
     }
-    if (GP.my_score > 1000)
+    if (hearts <= 0)
     {
       GP.mode = 1;
       return GP;
     }
     
     //Player's lives
+    
+    if (hearts > 3) hearts = 3;
+    if (hearts < 0) hearts = 0;
+    if (object_list["flash"].state != hearts)
+    {
+      object_list["flash"].display = true;
+      object_list["flash"].state_delay++;
+      if (object_list["flash"].state_delay > 5) 
+      {
+        object_list["flash"].display = false;
+        object_list["flash"].state = hearts ;
+        object_list["flash"].state_delay = 0;
+      }
+    }
+    
+    str_lives = std::to_string(hearts);
+    str_lives = "images/" + str_lives + "_hearts.bmp";
     object_list["hearts"].permanent = true;
     object_list["hearts"].xyw[0] = 10;
-    object_list["hearts"].xyw[1] = 801;
-    object_list["hearts"].xyw[2] = 117;
-    object_list["hearts"].xyw[3] = 39;
-    object_list["hearts"].assign_image(renderer, "images/3_hearts.bmp");
+    object_list["hearts"].xyw[1] = 788;
+    object_list["hearts"].xyw[2] = 156;
+    object_list["hearts"].xyw[3] = 52;
+    object_list["hearts"].assign_image(renderer, str_lives.c_str());
+    
     
     
     //background moving -->
@@ -220,7 +266,7 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
     if (enemy_ready >= enemy_delay)
     {
       enemy_ready = 0;
-      str_enemy = std::to_string(n_enemy%100);
+      str_enemy = std::to_string(n_enemy%20);
       str_enemy = "enemy" + str_enemy;
       object_list[str_enemy.c_str()].permanent = false;
       object_list[str_enemy.c_str()].display = true;
@@ -231,7 +277,6 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
       object_list[str_enemy.c_str()].speed  = 0;
       object_list[str_enemy.c_str()].explosion = 0;
       object_list[str_enemy.c_str()].explosion_delay = 0;
-      object_list[str_enemy.c_str()].weapon_delay = 50;
       if (n_enemy < 100)
       {
         object_list[str_enemy.c_str()].assign_image(renderer, "images/enemy.bmp");
@@ -239,15 +284,14 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
       }
       n_enemy++; 
     }
-    
-    
+        
     //format for enemy diagonal
     enemy_ready_diagonal++;
     if (enemy_ready_diagonal >= enemy_delay_diagonal)
     {
       axis = 2*(rand() % 2) - 1; 
       enemy_ready_diagonal = 0;
-      str_enemy_diagonal = std::to_string(n_enemy_diagonal%100);
+      str_enemy_diagonal = std::to_string(n_enemy_diagonal%10);
       str_enemy_diagonal = "enemy_diagonal" + str_enemy_diagonal;
       object_list[str_enemy_diagonal.c_str()].permanent = false;
       object_list[str_enemy_diagonal.c_str()].display = true;
@@ -274,7 +318,7 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
       if (object_list["spaceship"].weapon_ready >= object_list["spaceship"].weapon_delay)
 	  {
 	    object_list["spaceship"].weapon_ready = 0;
-	    weapon_tmp = std::to_string(object_list["spaceship"].n_weapons%100);
+	    weapon_tmp = std::to_string(object_list["spaceship"].n_weapons%50);
   	    weapon_tmp = "weapon_missile" + weapon_tmp;
         object_list[weapon_tmp.c_str()].permanent = false;
         object_list[weapon_tmp.c_str()].display = true;
@@ -288,8 +332,9 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
       }
 	}
 	
+
 	// lasers from enemy spaceships
-	// Check every enemy to see if it's exploding
+	// Check every enemy and spaceship to see if it's exploding
     for (auto const& enemies : object_list)
     {
       str_tmp = "enemy";
@@ -299,10 +344,10 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
         if (enemies.first.substr(0,14) == str_tmp) {continue;}
         if (! object_list[enemies.first].display) {continue;}
         object_list[enemies.first].weapon_ready++;
-        if (object_list[enemies.first].weapon_ready >= object_list[enemies.first].weapon_delay)
+        if (object_list[enemies.first].weapon_ready >= ((rand() % 50) + 70))
         {
           object_list[enemies.first].weapon_ready = 0;
-          weapon_tmp = std::to_string(object_list[enemies.first].n_weapons%100);
+          weapon_tmp = std::to_string(object_list[enemies.first].n_weapons%20);
           weapon_tmp = "weapon_laser" + enemies.first + weapon_tmp;
           object_list[weapon_tmp.c_str()].permanent = false;
           object_list[weapon_tmp.c_str()].display = true;
@@ -310,43 +355,18 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
           object_list[weapon_tmp.c_str()].xyw[3] = 43;
           object_list[weapon_tmp.c_str()].xyw[0] = object_list[enemies.first].xyw[0] + object_list[enemies.first].xyw[2]/2 - 6;
           object_list[weapon_tmp.c_str()].xyw[1] = object_list[enemies.first].xyw[1];
-          object_list[weapon_tmp.c_str()].speed  = -15;
+          object_list[weapon_tmp.c_str()].speed  = -10;
           object_list[weapon_tmp.c_str()].assign_image(renderer, "images/laser.bmp");
           object_list[enemies.first].n_weapons++;
         }
       }
     }
-//    laser_ready++;
-//    if (laser_ready >= laser_delay)
-//    {
-//      laser_ready = 0;
-//      str_laser = std::to_string(n_lasers%100);
-//      str_laser = "laser" + str_laser;
-//      object_list[str_laser.c_str()].permanent = false;
-//      object_list[str_laser.c_str()].display = true;
-//      object_list[str_laser.c_str()].xyw[2] = 12;
-//      object_list[str_laser.c_str()].xyw[3] = 45;
-//      object_list[str_laser.c_str()].xyw[0] = object_list[str_enemy.c_str()].xyw[0] + object_list[str_enemy.c_str()].xyw[2]/2;
-//      object_list[str_laser.c_str()].xyw[1] = object_list[enemies].xyw[1]
-//      object_list[str_laser.c_str()].speed  = 10;
-//      object_list[str_laser.c_str()].assign_image(renderer, "images/laser.bmp");
-//      n_lasers++;
-//    }
-//	for (auto const& lasers : object_list)
-//    {
-//      str_tmp = "laser";
-//      if (lasers.first.substr(0,5) == str_tmp)
-//      {
-//        if (! object_list[lasers.first].display) {continue;}
-//        object_list[lasers.first].xyw[1] = object_list[lasers.first].xyw[1] + object_list[lasers.first].speed;
-//        if (object_list[lasers.first].xyw[1] > 850)
-//        {
-//          object_list[lasers.first].display = false;
-//        }
-//      }
-//    }
-//    	       
+          
 	
+	
+
+
+
 	// Check every missile and see if it collides with any enemy
 	for (auto const& weapon : object_list)
     {
@@ -357,52 +377,56 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
         object_list[weapon.first].xyw[1] = object_list[weapon.first].xyw[1] - object_list[weapon.first].speed;
         if (object_list[weapon.first].xyw[1] < 0 - object_list[weapon_tmp.c_str()].xyw[3]) object_list[weapon.first].display = false;
         if (object_list[weapon.first].xyw[1] > GP.background_height_2) object_list[weapon.first].display = false;
-        for (auto const& enemies : object_list)
+        for (auto const& ship : object_list)
         {
+          if (! object_list[ship.first].alive || ! object_list[ship.first].display ) {continue;}
+          if (! object_collision(object_list[weapon.first], object_list[ship.first]) ) continue;
           str_tmp = "enemy";
           str_tmp_2 = "weapon_missile";
-          if (   (enemies.first.substr(0,5) == str_tmp)
-          	  && (weapon.first.substr(0,14) == str_tmp_2))
+          if (   (ship.first.substr(0,5) == str_tmp)
+              && (weapon.first.substr(0,14) == str_tmp_2))
           {
-            if (! object_list[enemies.first].display) {continue;}
-            if (   (object_list[weapon.first].xyw[0] + object_list[weapon.first].xyw[2] > object_list[enemies.first].xyw[0])
-                && (object_list[weapon.first].xyw[0] < object_list[enemies.first].xyw[0] + object_list[enemies.first].xyw[2])
-                && (object_list[weapon.first].xyw[1] < object_list[enemies.first].xyw[1] + object_list[enemies.first].xyw[3])
-                && (object_list[weapon.first].xyw[1] + object_list[weapon.first].xyw[3] > object_list[enemies.first].xyw[1]) )
+            object_list[weapon.first].display = false;
+            object_list[ship.first].alive = false;
+            object_list[ship.first].explosion = 1;  
+            str_tmp = "enemy_diagonal";
+            if (ship.first.substr(0,14) == str_tmp)
             {
-              object_list[weapon.first].display = false;
-              object_list[enemies.first].explosion = 1;  
-              str_tmp = "enemy_diagonal";
-              if (enemies.first.substr(0,14) == str_tmp)
-              {
-                GP.my_score = GP.my_score + 100;
-              }else
-              {
-                GP.my_score = GP.my_score + 50;
-              }
+              GP.my_score = GP.my_score + 100;
+            }else
+            {
+              GP.my_score = GP.my_score + 50;
             }
           }
+          str_tmp = "spaceship";
+          str_tmp_2 = "weapon_laser";
+          if (   (ship.first.substr(0,9) == str_tmp)
+              && (weapon.first.substr(0,12) == str_tmp_2))
+          {
+            object_list[weapon.first].display = false;
+            hearts--;
+          }
         } // loop on enemy
-//	    for (auto const& enemies_diagonal : object_list)
-//        {
-//          
-//          {
-//            if (! object_list[enemies_diagonal.first].display) {continue;}
-//            if (   (object_list[weapon.first].xyw[0] + object_list[weapon.first].xyw[2] > object_list[enemies_diagonal.first].xyw[0])
-//                && (object_list[weapon.first].xyw[0] < object_list[enemies_diagonal.first].xyw[0]+object_list[enemies_diagonal.first].xyw[2])
-//                && (object_list[weapon.first].xyw[1] < object_list[enemies_diagonal.first].xyw[1]+object_list[enemies_diagonal.first].xyw[3])
-//                && (object_list[weapon.first].xyw[1] + object_list[weapon.first].xyw[3] > object_list[enemies_diagonal.first].xyw[1]) )
-//            {
-//              object_list[weapon.first].display = false;
-//              object_list[enemies_diagonal.first].explosion = 1;  
-//              GP.my_score = GP.my_score + 50;
-//            }
-//          }
-//        } // loop on enemy diagonal
-	  }			
+	  }	// if weapon
+	 for (auto const& ship : object_list)
+     {
+       if (! object_list[ship.first].alive || ! object_list[ship.first].display ) {continue;}
+       if (! object_collision(object_list[weapon.first], object_list[ship.first]) ) continue;		
+       str_tmp = "enemy";
+       str_tmp_2 = "spaceship";
+       if (   (ship.first.substr(0,5) == str_tmp)
+           && (weapon.first.substr(0,9) == str_tmp_2))
+       {
+         object_list[ship.first].explosion = 1;
+         object_list[ship.first].alive = false;
+         hearts--;
+       }
+     }
 	} // loop on missiles
 	
-	update_renderer(renderer, object_list);
+	
+
+
 	
 
 	    	
