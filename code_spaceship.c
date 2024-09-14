@@ -92,6 +92,12 @@
   }
 
 
+
+
+
+
+//Main game run of spaceship
+
 game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
 { 
   //game_parameters GP;
@@ -266,7 +272,7 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
     if (enemy_ready >= enemy_delay)
     {
       enemy_ready = 0;
-      str_enemy = std::to_string(n_enemy%20);
+      str_enemy = std::to_string(n_enemy%10);
       str_enemy = "enemy" + str_enemy;
       object_list[str_enemy.c_str()].permanent = false;
       object_list[str_enemy.c_str()].display = true;
@@ -277,6 +283,7 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
       object_list[str_enemy.c_str()].speed  = 0;
       object_list[str_enemy.c_str()].explosion = 0;
       object_list[str_enemy.c_str()].explosion_delay = 0;
+      object_list[str_enemy.c_str()].alive = true;
       if (n_enemy < 100)
       {
         object_list[str_enemy.c_str()].assign_image(renderer, "images/enemy.bmp");
@@ -291,7 +298,7 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
     {
       axis = 2*(rand() % 2) - 1; 
       enemy_ready_diagonal = 0;
-      str_enemy_diagonal = std::to_string(n_enemy_diagonal%10);
+      str_enemy_diagonal = std::to_string(n_enemy_diagonal%2);
       str_enemy_diagonal = "enemy_diagonal" + str_enemy_diagonal;
       object_list[str_enemy_diagonal.c_str()].permanent = false;
       object_list[str_enemy_diagonal.c_str()].display = true;
@@ -304,6 +311,7 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
       object_list[str_enemy_diagonal.c_str()].explosion_delay = 0;
       object_list[str_enemy_diagonal.c_str()].direction = axis;
       object_list[str_enemy_diagonal.c_str()].weapon_delay = 100;
+      object_list[str_enemy_diagonal.c_str()].alive = true;
       if (n_enemy_diagonal < 100)
       {
         object_list[str_enemy_diagonal.c_str()].assign_image(renderer, "images/enemy_diagonal.bmp");
@@ -318,7 +326,7 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
       if (object_list["spaceship"].weapon_ready >= object_list["spaceship"].weapon_delay)
 	  {
 	    object_list["spaceship"].weapon_ready = 0;
-	    weapon_tmp = std::to_string(object_list["spaceship"].n_weapons%50);
+	    weapon_tmp = std::to_string(object_list["spaceship"].n_weapons%5);
   	    weapon_tmp = "weapon_missile" + weapon_tmp;
         object_list[weapon_tmp.c_str()].permanent = false;
         object_list[weapon_tmp.c_str()].display = true;
@@ -347,7 +355,7 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
         if (object_list[enemies.first].weapon_ready >= ((rand() % 50) + 70))
         {
           object_list[enemies.first].weapon_ready = 0;
-          weapon_tmp = std::to_string(object_list[enemies.first].n_weapons%20);
+          weapon_tmp = std::to_string(object_list[enemies.first].n_weapons%2);
           weapon_tmp = "weapon_laser" + enemies.first + weapon_tmp;
           object_list[weapon_tmp.c_str()].permanent = false;
           object_list[weapon_tmp.c_str()].display = true;
@@ -364,9 +372,6 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
           
 	
 	
-
-
-
 	// Check every missile and see if it collides with any enemy
 	for (auto const& weapon : object_list)
     {
@@ -424,14 +429,8 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
      }
 	} // loop on missiles
 	
-	
 
-
-	
-
-	    	
-	    	
-    
+    // Check every diagonal enemy
     for (auto const& enemies_diagonal : object_list)
     {
       str_tmp = "enemy_diagonal";
@@ -491,7 +490,7 @@ game_parameters main_game(SDL_Renderer *renderer, game_parameters GP)
 }
 
   
-  
+//gameover screen
   
 game_parameters game_over(SDL_Renderer *renderer, game_parameters GP)
 {
@@ -613,6 +612,8 @@ game_parameters game_over(SDL_Renderer *renderer, game_parameters GP)
  
  
  
+ //home screen
+ 
 game_parameters home_screen(SDL_Renderer *renderer, game_parameters GP)
 {
     int i;
@@ -704,6 +705,9 @@ game_parameters home_screen(SDL_Renderer *renderer, game_parameters GP)
     return GP;
 }
 
+
+
+//main code for game
   
 int main(int argc, char ** argv)
 {
