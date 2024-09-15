@@ -8,3 +8,5 @@ Place all in a folder and in terminal reach folder using cd "folder name" then u
 ![Screenshot 2024-09-15 at 14 51 05](https://github.com/user-attachments/assets/81cb74da-5a05-49c4-90ef-7474802ce5a3)
 ![Screenshot 2024-09-15 at 14 48 55](https://github.com/user-attachments/assets/f08dd133-baab-40b3-94b0-f8f65a68145e)
 ![Screenshot 2024-09-15 at 14 50 57](https://github.com/user-attachments/assets/1d42d94d-8e40-4cdd-8a3b-6564b4cfab7c)
+![Screenshot 2024-09-15 at 14 55 36](https://github.com/user-attachments/assets/fdcca5ff-08d8-4062-953e-3945ac68997e)
+![Screenshot 2024-09-15 at 14 55 43](https://github.com/user-attachments/assets/3db745ea-f81b-4e4f-9705-385fd69833c7)
